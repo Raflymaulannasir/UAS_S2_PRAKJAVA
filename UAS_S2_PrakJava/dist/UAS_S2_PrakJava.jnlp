@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp spec="1.0" xmlns:jfx="http://javafx.com" href="UAS_S2_PrakJava.jnlp">
+  <information>
+    <title>UAS_S2_PrakJava</title>
+    <vendor>acer</vendor>
+    <description>null</description>
+    <offline-allowed/>
+  </information>
+  <resources>
+    <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
+    <jar href="UAS_S2_PrakJava.jar" size="10575" download="eager" />
+  </resources>
+  <jfx:javafx-desc  width="800" height="600" main-class="Koneksi.UAS_S2_PrakJava"  name="UAS_S2_PrakJava" />
+  <update check="always"/>
+</jnlp>
