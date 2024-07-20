@@ -1,20 +1,47 @@
 package form;
 
+import Koneksi.KoneksiDatabase;
 import java.sql.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 public class FrmData extends javax.swing.JFrame {
     public Statement st;
     public ResultSet rs;
     Connection cn = Koneksi.KoneksiDatabase.getConnection();
     
+    private void insertData() {
+        String sql = "INSERT INTO datakendaraan (PlatNomor, NamaPemilik, AlamatPemilik, MerkKendaraan, JenisKendaraan, WarnaKendaraan) VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection cn = KoneksiDatabase.getConnection(); 
+             PreparedStatement pstmt = cn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, txtPlatNomor.getText());
+            pstmt.setString(2, txtNamaPemilik.getText());
+            pstmt.setString(3, txtAlamatPemilik.getText());
+            pstmt.setString(4, txtMerkKendaraan.getText());
+            pstmt.setString(5, txtJenisKendaraan.getText());
+            pstmt.setString(6, txtWarnaKendaraan.getText());
+
+            int rowsInserted = pstmt.executeUpdate();
+            if (rowsInserted > 0) {
+                System.out.println("Data berhasil disimpan.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
     public FrmData() {
         initComponents();
         TampilData();
     }
+    
+    
     
     private void Bersih(){
         txtPlatNomor.setText("");
@@ -72,14 +99,15 @@ public class FrmData extends javax.swing.JFrame {
             st = cn.createStatement();
             rs = st.executeQuery("SELECT * FROM datakendaraan");
             
-            DefaultTableModel model = new DefaultTableModel();
+            DefaultTableModel model = new DefaultTableModel(
+            new Object[]{"PlatNomor", "Nama Pemilik", "Alamat Pemilik", "Merk Kendaraan", "Jenis Kendaraan", "Warna Kendaraan"}, 0);
             //model.addColumn("No.");
-            model.addColumn("PlatNomor");
-            model.addColumn("Nama Pemilik");
-            model.addColumn("Alamat Pemilik");
-            model.addColumn("Merk Kendaraan");
-            model.addColumn("Jenis Kendaraan");
-            model.addColumn("Warna Kendaraan");
+            /*model.addColumn("");
+            model.addColumn("");
+            model.addColumn("");
+            model.addColumn("");
+            model.addColumn("");
+            model.addColumn("");*/
             
             //int No = 1;
             
@@ -98,7 +126,8 @@ public class FrmData extends javax.swing.JFrame {
                 rs.getString("Warna Kendaraan")
             };
              model.addRow(data);
-             tblData.setModel(model);              
+             tblData.setModel(model);
+             
             }
         }catch (Exception e) {
         }
@@ -223,7 +252,7 @@ public class FrmData extends javax.swing.JFrame {
         jLabel1.setText("Cari Data");
 
         cmbCari.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        cmbCari.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "PlatNomor", "Nama Pemilik", "Alamat Pemilik", "Merk Kendaraan", "Jenis Kendaraan", "Warna Kendaraan" }));
+        cmbCari.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "PlatNomor", "Nama Pemilik", "Merk Kendaraan", " " }));
         cmbCari.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cmbCariActionPerformed(evt);
@@ -412,17 +441,35 @@ public class FrmData extends javax.swing.JFrame {
     }//GEN-LAST:event_btnSimpanActionPerformed
 
     private void tblDataMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblDataMouseClicked
-        // TODO add your handling code here:
-        txtPlatNomor.setText(tblData.getValueAt(tblData.getSelectedRow(), 1).toString());
-        txtNamaPemilik.setText(tblData.getValueAt(tblData.getSelectedRow(), 2).toString());
-        txtAlamatPemilik.setText(tblData.getValueAt(tblData.getSelectedRow(), 3).toString());
-        txtMerkKendaraan.setText(tblData.getValueAt(tblData.getSelectedRow(), 4).toString());
-        txtJenisKendaraan.setText(tblData.getValueAt(tblData.getSelectedRow(), 5).toString());
-        txtWarnaKendaraan.setText(tblData.getValueAt(tblData.getSelectedRow(), 6).toString());
-        
+        // TODO add your handling code here:                                    
+    int selectedRow = tblData.getSelectedRow();
+    int columnCount = tblData.getColumnCount();
+
+    if (selectedRow != -1) {
+        if (columnCount > 1) {
+            txtPlatNomor.setText(tblData.getValueAt(selectedRow, 1).toString());
+        }
+        if (columnCount > 2) {
+            txtNamaPemilik.setText(tblData.getValueAt(selectedRow, 2).toString());
+        }
+        if (columnCount > 3) {
+            txtAlamatPemilik.setText(tblData.getValueAt(selectedRow, 3).toString());
+        }
+        if (columnCount > 4) {
+            txtMerkKendaraan.setText(tblData.getValueAt(selectedRow, 4).toString());
+        }
+        if (columnCount > 5) {
+            txtJenisKendaraan.setText(tblData.getValueAt(selectedRow, 5).toString());
+        }
+        if (columnCount > 6) {
+            txtWarnaKendaraan.setText(tblData.getValueAt(selectedRow, 6).toString());
+        }
+
         txtPlatNomor.setEditable(false);
         btnUpdate.setText("Update");
-        
+   
+}
+
     }//GEN-LAST:event_tblDataMouseClicked
 
     private void btnHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHapusActionPerformed
@@ -434,7 +481,8 @@ public class FrmData extends javax.swing.JFrame {
         if (jawab == 0){
             try {
                 st = cn.createStatement();
-                String sql = "DELET FROM datakendaraan WHERE PlatNomor = '" + txtPlatNomor.getText() + "'";
+                String sql;
+                sql = "DELET FROM datakendaraan WHERE PlatNomor = '" + txtPlatNomor.getText() + "'";
                 st.executeUpdate(sql);
                 JOptionPane.showMessageDialog(null, "Data berhasil dihapus");
                 TampilData();
